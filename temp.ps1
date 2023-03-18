@@ -1,22 +1,46 @@
 # Variablen
-$var = 'CreateDrill("Vertikale Bohrung_2", 250.1817, 309.0415, 19.0000, 8.0000, "", TypeOfProcess.Drilling, "-1", "-1", 0, -1, -1, "L");'
+$filePath = "./test.xcs"
 
-# Überprüfe, ob der String $var der Vorlage entspricht und die letzte Position "L" ist
-if ($var -match 'CreateDrill\(".+?", .+?, .+?, .+?, .+?, "", TypeOfProcess\.Drilling, "-1", "-1", 0, -1, -1, "L"\);') {
+# Lese die Datei
+$content = Get-Content -Path $filePath
+
+# Variablen für die gefundenen Zeilen
+$setMachiningParametersLine = $null
+$createFinishedWorkpieceBoxLine = $null
+
+# Suche die relevanten Zeilen
+foreach ($line in $content) {
+    if ($line -match '^SetMachiningParameters\("AB",') {
+        $setMachiningParametersLine = $line
+    }
+    if ($line -match '^CreateFinishedWorkpieceBox\(') {
+        $createFinishedWorkpieceBoxLine = $line
+    }
+}
+
+# Überprüfe, ob SetMachiningParameters-Zeile gefunden wurde
+if ($null -eq $setMachiningParametersLine) {
+    Write-Output "Die Zeile mit SetMachiningParameters wurde nicht gefunden."
+    return
+}
+
+# Überprüfe die Länge, die in CreateFinishedWorkpieceBox angegeben ist, oder ob sie fehlt
+if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
+    $length = [double]$matches[1]
     
-    # Extrahiere die relevanten Werte
-    $var -match 'CreateDrill\("(.+?)", (.+?), (.+?), (.+?), (.+?), "", TypeOfProcess\.Drilling, "-1", "-1", 0, -1, -1, "L"\);'
-    $name, $val1, $val2, $val3, $val4 = $matches[1], $matches[2], $matches[3], $matches[4], $matches[5]
-    
-    # Erhöhe die Zahl (19.0000 im Beispiel) um 3
-    $newVal3 = [double]$val3 + 3
-
-    # Erstelle den neuen String
-    $newVar = "CreateDrill(`"$name`", $val1, $val2, {0:N4}, $val4, `"`", TypeOfProcess.Drilling, `"-1`", `"-1`", 0, -1, -1, `"`"P`"`");" -f $newVal3
-
-    # Ausgabe des neuen Strings
-    Write-Output $newVar
+    if ($length -gt 1800) {
+        $newSetMachiningParametersLine = $setMachiningParametersLine -replace 'SetMachiningParameters\("AB"', 'SetMachiningParameters("AD"'
+    }
+    else {
+        $newSetMachiningParametersLine = $setMachiningParametersLine
+    }
 }
 else {
-    Write-Output "Der String $var entspricht nicht dem geforderten Muster oder endet nicht mit 'L'."
+    $newSetMachiningParametersLine = $setMachiningParametersLine -replace 'SetMachiningParameters\("AB"', 'SetMachiningParameters("AD"'
 }
+
+# Ersetze die Zeile SetMachiningParameters
+$content = $content -replace [regex]::Escape($setMachiningParametersLine), $newSetMachiningParametersLine
+
+# Schreibe die Datei
+Set-Content -Path $filePath -Value $content

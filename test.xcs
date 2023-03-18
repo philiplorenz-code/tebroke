@@ -1,0 +1,7 @@
+ShowDialog
+SetMachiningParameters("AD", 1, 11, 10, false);
+CreateFinishedWorkpieceBox("test_19.0", 1900.0000, 400.0000, 19.0000);
+werden
+sanduhrasd
+asd
+asd
