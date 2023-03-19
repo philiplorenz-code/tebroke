@@ -9,6 +9,9 @@ param(
 #----Initial Declarations-------------------------------------#
 #-------------------------------------------------------------#
 $inputjson = $input
+$DesktopPath = [Environment]::GetFolderPath("Desktop") 
+$inputjson | ConvertTo-Json | Set-Content -Path ([IO.Path]::Combine($DesktopPath, "logs", "input.json"))
+
 
 function Write-ToLog {
   param(
