@@ -447,7 +447,6 @@ $DataObject = ConvertFrom-Json @"
     "WorkingDir" : null,
     "WorkingDirTemp" : null,
     "input" : null,
-    "m200cb" : false,
     "PSScriptRoot" : null
     
 }
@@ -455,12 +454,11 @@ $DataObject = ConvertFrom-Json @"
 "@
 
 $DataContext = New-Object System.Collections.ObjectModel.ObservableCollection[Object]
-FillDataContext @("tabIndex", "GlobalError", "Systempath", "SystemCommand", "SystemProfile", "Program", "XConverter", "Infiles", "tmpFiles", "tmpFiles2", "outFiles", "Tooling", "WorkingDir", "WorkingDirTemp", "input", "M200Infiles", "M200tmpFiles", "M200tmpFiles2", "M200outFiles", "m200cb", "PSScriptRoot")
+FillDataContext @("tabIndex", "GlobalError", "Systempath", "SystemCommand", "SystemProfile", "Program", "XConverter", "Infiles", "tmpFiles", "tmpFiles2", "outFiles", "Tooling", "WorkingDir", "WorkingDirTemp", "input", "M200Infiles", "M200tmpFiles", "M200tmpFiles2", "M200outFiles", "PSScriptRoot")
 
 
 $Window.DataContext = $DataContext
 Set-Binding -Target $name -Property $([System.Windows.Controls.TabControl]::SelectedIndexProperty) -Index 0 -Name "tabIndex"
-Set-Binding -Target $m200cb -Property $([System.Windows.Controls.CheckBox]::IsCheckedProperty) -Index 23 -Name "m200cb" 
 
 
 
