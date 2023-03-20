@@ -8,9 +8,13 @@ param(
 #-------------------------------------------------------------#
 #----Initial Declarations-------------------------------------#
 #-------------------------------------------------------------#
-$inputjson = $input
-$DesktopPath = [Environment]::GetFolderPath("Desktop") 
-$inputjson | ConvertTo-Json | Set-Content -Path ([IO.Path]::Combine($DesktopPath, "logs", "input.json"))
+
+Start-Transcript -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\transcript.txt"
+$input | Out-File "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\dbg.txt"
+$input | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\input.txt"
+$SystemPath | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemPath.txt"
+$SystemCommand | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemCommand.txt"
+$SystemProfile | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemProfile.txt"
 
 
 function Write-ToLog {
