@@ -305,6 +305,18 @@ function Replace-SetMacroParam([string]$Filename) {
   }
 }
 
+function Uebersetzung([string]$Filename) {
+# Hier können Textersetzungen angegeben werden, welche dann in der xcs- bzw. pgmx-Datei wirksam werden
+  $Content = Get-Content $Filename
+  $Content.Replace("SlantedBladeCut", "Saegeschnitt_").
+  Replace("Routing_", "Fraesen_").
+  Replace("VerticalDrilling", "Vertikale Bohrung").
+  Replace("HorizontalDrilling", "Horizontale Bohrung").
+  Replace("PYTHA_INIT_", "Blindes Makro_").
+  Replace("PYTHA_PARK_", "Wegfahrschritt_") | Set-Content $Filename
+  
+}
+
 function Replace-CreateRoughFinish([string]$Filename) {
   $Content = Get-Content $Filename
   # Add Lines Before
@@ -435,6 +447,7 @@ foreach ($Prog in $input) {
   $XCS = $Prog.CamPath
     
   Initial-Replace -Filename $XCS
+  Uebersetzung -Filename $XCS
   Replace-CreateBladeCut -Filename $XCS
   Replace-CreateSlot -Filename $XCS
   Replace-CreateContourPocket -Filename $XCS
