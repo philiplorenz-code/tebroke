@@ -22,8 +22,8 @@ $SystemCommand | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppD
 $SystemProfile | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemProfile.txt"
 
 
-$XConverter = "C:\Program Files (x86)\SCM Group\Maestro\XConverter.exe"
-$Tooling = "C:\Program Files (x86)\SCM Group\Maestro\Tlgx\def.tlgx"
+$XConverter = "C:\Program Files\SCM Group\Maestro\XConverter.exe"
+$Tooling = "C:\Users\Public\Documents\SCM Group\Maestro\Tlgx\def.tlgx"
 
 
 $count = 0
