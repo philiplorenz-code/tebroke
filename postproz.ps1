@@ -197,6 +197,7 @@ function Bohrer([string]$path) {
   Set-Content -Path $path -Value $output
 }
 
+
 function Feldanpassung([string]$filePath) {
 
   # Lese die Datei
@@ -320,6 +321,17 @@ function Replace-CreateRoughFinish([string]$Filename) {
   if ($KeyWord) {
     Add-StringBefore -insert $Array -keyword $KeyWord -textfile $Filename
   }
+
+
+    # Approach- und RetractStrategie ersetzen
+  $Content| ForEach-Object {
+
+      # Im Bogen an- und abfahren mit 5 mm Überlappung für Bauteilumfräsung
+      $_.Replace("SetApproachStrategy(true, false, -1)", "SetApproachStrategy(false, true, 2)").
+      Replace("SetRetractStrategy(true, false, -1, 0)", "SetRetractStrategy(false, true, 2, 5)")
+
+  } | Set-Content $Filename
+
 
   #Add-StringBefore -insert $Array -keyword 'CreateRoughFinish("",22.0000,"",TypeOfProcess.GeneralRouting, "E010", "-1", 2);' -textfile $Filename
   #Add-StringBefore -insert $Array -keyword 'CreateRoughFinish("",1.5000,"",TypeOfProcess.GeneralRouting, "E031", "-1", 0);' -textfile $Filename
