@@ -12,7 +12,7 @@ Start-Transcript -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\tran
 
 
 
-$input | Out-File "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\dbg.txt"
+$input | ConvertTo-Json | Out-File "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\dbg.txt"
 
 $input | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\input.txt"
 $SystemPath | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemPath.txt"
