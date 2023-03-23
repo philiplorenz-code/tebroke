@@ -185,7 +185,8 @@ function Bohrer([string]$path) {
       # Erhöhe die Zahl (19.0000 im Beispiel) um 3
       $newVal3 = [double]$val3 + 3
       # Erstelle den neuen String
-      $newVar = "CreateDrill(`"$name`", $val1, $val2, {0:N4}, $val4, `"`", TypeOfProcess.Drilling, `"-1`", `"-1`", 0, -1, -1, `"P`");" -f $newVal3
+
+      $newVar = "CreateDrill(`"$name`", $val1, $val2, {0:N4}, $val4, `"`", TypeOfProcess.Drilling, `"-1`", `"-1`", 0, -1, -1, `"P`");" -f $newVal3.ToString("F4", [System.Globalization.CultureInfo]::InvariantCulture)
       $output += $newVar
     }
     else {
