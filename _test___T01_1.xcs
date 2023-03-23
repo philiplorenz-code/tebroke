@@ -1,4 +1,4 @@
-SetMachiningParameters("AB", 1, 11, 10, false);
+SetMachiningParameters("AD", 1, 11, 10, false);
 CreateFinishedWorkpieceBox("test_19.0", 1850.0000, 400.0000, 19.0000);
 CreateRawWorkpiece("test_19.0", 5.0000, 5.0000, 5.0000, 5.0000, 0.0000, 0.0000);
 SetWorkpieceSetupPosition(5.0000, 5.0000, 0.0000, 0.0000);
@@ -19,14 +19,20 @@ CreateRoughFinish("Routing_1", 22.0000, "", TypeOfProcess.GeneralRouting, "E002"
 ResetPneumaticHood();
 ResetApproachStrategy();
 ResetRetractStrategy();
+ApplyTechnology("");
 CreateSegment("CutSegment1", 1840.0000, 0.0000, 1840.0000, 400.0000);
-CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting, "E092", "-1", 62.2415, 2);
-CreateDrill("VerticalDrilling_1", 901.6867, 213.3605, 19.0000, 8.0000, "", TypeOfProcess.Drilling, "-1", "-1", 0, -1, -1, "L");
+SetApproachStrategy(true, true, 0.8);
+SetRetractStrategy(true, true, 0.8, 0);
+CreateSectioningMillingStrategy(3, 150, 0);
+CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting, "E092", "-1", 62.2415, 2, -1, -1, -1, 0, true, true, 0, 10);
+
+CreateDrill("VerticalDrilling_1", 901.6867, 213.3605, 22.0000, 8.0000, "", TypeOfProcess.Drilling, "-1", "-1", 0, -1, -1, ""P"");
 SetMacroParam("X", 480.7654);
 SetMacroParam("Y", 200.4069);
 SetMacroParam("Length", 320.4822);
 SetMacroParam("Width", 197.0497);
 SetMacroParam("Angle", 180.0000);
+SetMacroParam("Depth", 0);
 try {
 CreateMacro("PYTHA_Test_1", "PYTHA_Test");
 }
@@ -39,7 +45,10 @@ AddSegmentToPolyline(1206.4131, 84.5230);
 AddSegmentToPolyline(1526.8953, 84.5230);
 AddSegmentToPolyline(1526.8953, 281.5727);
 SetPneumaticHoodPosition(1);
+SetApproachStrategy(true, false, 2);
+CreateContourParallelStrategy(true, 0, true, 7, 0, 0);
 CreateContourPocket("", 5.0000, "", TypeOfProcess.ConcentricalPocket, "E002");
+
 ResetPneumaticHood();
 ResetApproachStrategy();
 ResetRetractStrategy();

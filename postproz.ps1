@@ -7,6 +7,8 @@ Param(
 )
 ############################################################################
 
+#$inputimport = Get-Content "./input.txt" | ConvertFrom-Json
+
 Start-Transcript -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\transcript.txt"
 
 
@@ -426,7 +428,7 @@ foreach ($Prog in $input) {
   Replace-CreateRoughFinish -Filename $XCS
   Replace-SetMacroParam -Filename $XCS
   Feldanpassung -filePath $XCS
-  Bohrer -path $XC
+  Bohrer -path $XCS
  
 
   $xcsPath = $Prog.CamPath

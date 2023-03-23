@@ -1,0 +1,7 @@
+{
+  "PartId":  "1",
+  "Number":  "1",
+  "CamPath":  "/Users/philip/Code/tebroke/_test___T01_1.xcs",
+  "ImgPath":  "",
+  "CamName":  "_test___T01_1.xcs"
+}
