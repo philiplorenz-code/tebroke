@@ -22,8 +22,8 @@ $SystemCommand | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppD
 $SystemProfile | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemProfile.txt"
 
 
-$XConverter = "C:\Program Files\SCM Group\Maestro\XConverter.exe"
-$Tooling = "C:\Users\Public\Documents\SCM Group\Maestro\Tlgx\def.tlgx"
+$XConverter = 'C:\Program Files (x86)\SCM Group\Maestro\XConverter.exe'
+$Tooling = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\def.tlgx"
 
 
 $count = 0
@@ -32,7 +32,6 @@ $tmpFiles = @()
 $outFiles = @()
 
 function convert-xcs-to-pgmx {
-  Write-Output "Converting" $inFiles to $outFiles
   # Konvertieren in tmp pgmx
   & $XConverter -ow -s -report -m 0  -i $inFiles -t $Tooling -o $tmpFiles | Out-Default
 
@@ -64,13 +63,8 @@ function Add-StringBefore {
     # in $textfile muss eigentlich immer $Prog.CamPath übergeben werden
     [string]$textfile
   )
-  Write-Host "Das ist der insert: $insert"
-  Write-Host "Das ist das keyword: $keyword"
-  Write-Host "Das ist der PFad: $textfile"
-
   $content = Get-Content $textfile
 
-  Write-Host "Das ist der aktuelle inhalt: $content"
   $counter = 0
   $keywordcomplete = ""
   foreach ($string in $content) {
@@ -385,7 +379,6 @@ function Replace-SetMacroParam([string]$Filename) {
 
     # ApplyTechnology
     if (![string]::IsNullOrEmpty($Technologie) -and $ProgrammNr -eq "1.xcs") {
-      Write-Host "Technologie ist $Technologie !! und ProgNr ist 1!"
 
       # Einstellungen für Tech aus Config holen
       $configpath = Join-path $PSScriptRoot "configtech.txt"
@@ -413,7 +406,6 @@ function Replace-SetMacroParam([string]$Filename) {
 
       $content_prog = Get-Content $filename
       if (lineinfile -con $content_prog) {
-        Write-Host "ResetRetractStrategy() enthalten!"
         $newcontent = @()
         $found = $false
         foreach ($line in $content_prog) {
