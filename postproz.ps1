@@ -13,7 +13,7 @@ Start-Transcript -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\tran
 
 
 
-
+$logfile = "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\log.log"
 $input | ConvertTo-Json | Out-File "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\dbg.txt"
 
 $input | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\input.txt"
@@ -31,7 +31,57 @@ $inFiles = @()
 $tmpFiles = @()
 $outFiles = @()
 
+
+function Write-Log {
+  param (
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$Message,
+      
+    [Parameter(Mandatory = $false, Position = 1)]
+    [string]$LogFilePath = "C:\Logs\debug_log.txt",
+      
+    [Parameter(Mandatory = $false, Position = 2)]
+    [string]$LogType = "Info",
+      
+    [Parameter(Mandatory = $false, Position = 3)]
+    [bool]$NewProcess = $false
+  )
+
+  # Beispiel zur Verwendung der Funktion
+  # Write-Log -Message "Dies ist ein Test-Log" -NewProcess $true
+  # Write-Log -Message "Ein weiterer Test-Log" -LogType "Warning"
+
+  # Erstelle Log-Verzeichnis, falls es nicht existiert
+  $LogDir = Split-Path -Path $LogFilePath -Parent
+  if (-not (Test-Path -Path $LogDir)) {
+    New-Item -ItemType Directory -Path $LogDir | Out-Null
+  }
+
+  # Erstelle Log-Datei, falls sie nicht existiert
+  if (-not (Test-Path -Path $LogFilePath)) {
+    New-Item -ItemType File -Path $LogFilePath | Out-Null
+  }
+
+  # Füge einen neuen Vorgang mit Datum und Uhrzeit hinzu, wenn $NewProcess -eq $true
+  if ($NewProcess) {
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $separator = "=" * 50
+    $startEntry = "`n$separator`n$timestamp - Beginn eines neuen Vorgangs`n$separator"
+    Add-Content -Path $LogFilePath -Value $startEntry
+  }
+
+  # Schreibe den Log-Eintrag in die Datei
+  $logEntry = "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") - $LogType - $Message"
+  Add-Content -Path $LogFilePath -Value $logEntry
+}
+
+
+
+
+
+
 function convert-xcs-to-pgmx {
+  Write-Output "Converting" $inFiles to $outFiles
   # Konvertieren in tmp pgmx
   & $XConverter -ow -s -report -m 0  -i $inFiles -t $Tooling -o $tmpFiles | Out-Default
 
@@ -63,8 +113,13 @@ function Add-StringBefore {
     # in $textfile muss eigentlich immer $Prog.CamPath übergeben werden
     [string]$textfile
   )
+  Write-Host "Das ist der insert: $insert"
+  Write-Host "Das ist das keyword: $keyword"
+  Write-Host "Das ist der PFad: $textfile"
+
   $content = Get-Content $textfile
 
+  Write-Host "Das ist der aktuelle inhalt: $content"
   $counter = 0
   $keywordcomplete = ""
   foreach ($string in $content) {
@@ -143,7 +198,7 @@ function Initial-Replace([string]$Filename) {
 
 function Replace-CreateBladeCut([string]$Filename) {
   $Content = Get-Content $Filename
-
+  # Prob: Die Zeilen werden nicht eingefügt 
   # Add Lines Before
   $Array = @()
   $Array += 'SetApproachStrategy(true, true, 0.8);'
@@ -152,7 +207,13 @@ function Replace-CreateBladeCut([string]$Filename) {
 
   $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
   if ($KeyWord) {
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logFilePath
+    Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logFilePath
     Add-StringBefore -insert $Array -keyword $KeyWord -textfile $Filename
+  }
+  else {
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logFilePath
+    Write-Log -Message "if (KeyWord) hat nicht angeschlagen" -LogFilePath $logFilePath
   }
 
   # 78.1113 kann sich ändern
@@ -221,7 +282,7 @@ function Feldanpassung([string]$filePath) {
   if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
     $length = [double]$matches[1]
     
-    if ($length -gt 1550) {
+    if ($length -gt 1800) {
       $newSetMachiningParametersLine = $setMachiningParametersLine -replace 'SetMachiningParameters\("AB"', 'SetMachiningParameters("AD"'
     }
     else {
@@ -271,36 +332,8 @@ function Replace-CreateContourPocket([string]$Filename) {
   # "E010" und 12.0000 kann anders sein
 }
 
-function Replace-SetMacroParam([string]$Filename) {
-  $charCount = ($Filename.ToCharArray() | Where-Object { $_ -eq '_' } | Measure-Object).Count
-  if ($charCount -gt 3) {
-
-    $Filename = Split-Path $Filename -leaf
-    $Elements = $Filename.split('_')
-    
-    $MM = $Elements[3]
-
-    if ($Filename -like "*__*") {
-      $MM = 0
-    }
-
-    $content = Get-Content $Filename
-    $output = @()
-    foreach ($string in $content) {
-      $output += $string
-      if ($string -like "*SetMacroParam*Angle*") {
-        #$output += 'SetMacroParam("Depth", ' + $MM + ');'
-      }
-
-    }
-
-    Set-Content -Path $Filename -Value $output
-    
-  }
-}
-
 function Uebersetzung([string]$Filename) {
-# Hier können Textersetzungen angegeben werden, welche dann in der xcs- bzw. pgmx-Datei wirksam werden
+  # Hier können Textersetzungen angegeben werden, welche dann in der xcs- bzw. pgmx-Datei wirksam werden
   $Content = Get-Content $Filename
   $Content.Replace("SlantedBladeCut", "Saegeschnitt_").
   Replace("Routing_", "Fraesen_").
@@ -329,12 +362,12 @@ function Replace-CreateRoughFinish([string]$Filename) {
   }
 
 
-    # Approach- und RetractStrategie ersetzen
-  $Content| ForEach-Object {
+  # Approach- und RetractStrategie ersetzen
+  $Content | ForEach-Object {
 
-      # Im Bogen an- und abfahren mit 5 mm Überlappung für Bauteilumfräsung
-      $_.Replace("SetApproachStrategy(true, false, -1)", "SetApproachStrategy(false, true, 2)").
-      Replace("SetRetractStrategy(true, false, -1, 0)", "SetRetractStrategy(false, true, 2, 5)")
+    # Im Bogen an- und abfahren mit 5 mm Überlappung für Bauteilumfräsung
+    $_.Replace("SetApproachStrategy(true, false, -1)", "SetApproachStrategy(false, true, 2)").
+    Replace("SetRetractStrategy(true, false, -1, 0)", "SetRetractStrategy(false, true, 2, 5)")
 
   } | Set-Content $Filename
 
@@ -347,81 +380,84 @@ function Replace-CreateRoughFinish([string]$Filename) {
 
 
 function Replace-SetMacroParam([string]$Filename) {
-
-    $filename = Split-Path $Filename -leaf
-    $split = $filename.split("_")
-    $PosNr = $split[0]
-    $Bauteilname = $split[1]
-    $Material = $split[2]
-    $Fraestiefe = $split[3]
-    $Technologie = $split[4]
-    $ProgrammNr = $split[5]
+  # Prob: Technologie nicht angesprochen
+  $filename = Split-Path $Filename -leaf
+  $split = $filename.split("_")
+  $PosNr = $split[0]
+  $Bauteilname = $split[1]
+  $Material = $split[2]
+  $Fraestiefe = $split[3]
+  $Technologie = $split[4]
+  $ProgrammNr = $split[5]
     
-    if ([string]::IsNullOrEmpty($Fraestiefe)) {
-      $MM = 0
-    }
-    else {
-      $MM = $Fraestiefe
+  if ([string]::IsNullOrEmpty($Fraestiefe)) {
+    $MM = 0
+  }
+  else {
+    $MM = $Fraestiefe
+  }
+    
+  # SetMacroParam
+  # Prob: Depth 0 statt Parameter
+  $content = Get-Content $filename
+  $output = @()
+  foreach ($string in $content) {
+    $output += $string
+    if ($string -like "*SetMacroParam*Angle*") {
+      $output += 'SetMacroParam("Depth", ' + $MM + ');'
     }
     
-    # SetMacroParam
-    $content = Get-Content $filename
-    $output = @()
-    foreach ($string in $content) {
-      $output += $string
-      if ($string -like "*SetMacroParam*Angle*") {
-        $output += 'SetMacroParam("Depth", ' + $MM + ');'
-      }
-    
+  }
+  Set-Content -Path $filename -Value $output
+
+
+  # ApplyTechnology
+  if (![string]::IsNullOrEmpty($Technologie) -and $ProgrammNr -eq "1.xcs") {
+    Write-Host "Technologie ist $Technologie !! und ProgNr ist 1!"
+
+    # Einstellungen für Tech aus Config holen
+    $configpath = Join-path $PSScriptRoot "configtech.txt"
+    $content = Get-Content $configpath
+
+    "Content:" | Out-File -Append -FilePath ([IO.Path]::Combine($PSScriptRoot, "logs", "log.log"))
+
+    $content | Out-File -Append -FilePath ([IO.Path]::Combine($PSScriptRoot, "logs", "log.log"))
+
+    $hashtable = @{}
+    foreach ($line in $content) {
+      $hashtable.Add(($line.Split("_"))[0], $line)
     }
-    Set-Content -Path $filename -Value $output
 
-
-    # ApplyTechnology
-    if (![string]::IsNullOrEmpty($Technologie) -and $ProgrammNr -eq "1.xcs") {
-
-      # Einstellungen für Tech aus Config holen
-      $configpath = Join-path $PSScriptRoot "configtech.txt"
-      $content = Get-Content $configpath
-
-      "Content:" | Out-File -Append -FilePath ([IO.Path]::Combine($PSScriptRoot, "logs", "log.log"))
-
-      $content | Out-File -Append -FilePath ([IO.Path]::Combine($PSScriptRoot, "logs", "log.log"))
-
-      $hashtable = @{}
-      foreach ($line in $content) {
-        $hashtable.Add(($line.Split("_"))[0], $line)
-      }
-
-      # Check Function 
-      function lineinfile($con) {
-        foreach ($line in $con) {
-          if ($line -like "*ResetRetractStrategy();*") {
-            return $true
-          }
+    # Check Function 
+    function lineinfile($con) {
+      foreach ($line in $con) {
+        if ($line -like "*ResetRetractStrategy();*") {
+          return $true
         }
-        return $false
       }
-
-
-      $content_prog = Get-Content $filename
-      if (lineinfile -con $content_prog) {
-        $newcontent = @()
-        $found = $false
-        foreach ($line in $content_prog) {
-          $newcontent += $line
-          if ($line -like "*ResetRetractStrategy();*" -and !$found) {
-            $newcontent += 'ApplyTechnology("' + $hashtable.($Technologie) + '");'
-            $found = $true
-          }
-        }
-        Set-Content -Value $newcontent -Path $filename
-      }
+      return $false
     }
+
+
+    $content_prog = Get-Content $filename
+    if (lineinfile -con $content_prog) {
+      Write-Host "ResetRetractStrategy() enthalten!"
+      $newcontent = @()
+      $found = $false
+      foreach ($line in $content_prog) {
+        $newcontent += $line
+        if ($line -like "*ResetRetractStrategy();*" -and !$found) {
+          $newcontent += 'ApplyTechnology("' + $hashtable.($Technologie) + '");'
+          $found = $true
+        }
+      }
+      Set-Content -Value $newcontent -Path $filename
+    }
+  }
 }
 
 
-
+Write-Log -Message "Dies ist ein Test-Log" -NewProcess $true -LogFilePath $logfile
 $i = 0
 foreach ($Prog in $input) {
   if ($count -ge 200) { 
