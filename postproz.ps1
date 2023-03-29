@@ -196,6 +196,7 @@ function Replace-CreateBladeCut([string]$Filename) {
   $Array += 'CreateSectioningMillingStrategy(3, 150, 0);'
 
   $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
+  Write-Log -Message "KeyWord: $KeyWord" -LogFilePath $logfile
   if ($KeyWord) {
     Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
     Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
@@ -465,7 +466,7 @@ foreach ($Prog in $input) {
   $XCS = $Prog.CamPath
     
   Initial-Replace -Filename $XCS
-  Uebersetzung -Filename $XCS
+  #Uebersetzung -Filename $XCS
   Replace-CreateBladeCut -Filename $XCS
   Replace-CreateSlot -Filename $XCS
   Replace-CreateContourPocket -Filename $XCS
