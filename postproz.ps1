@@ -221,7 +221,7 @@ function Feldanpassung([string]$filePath) {
   if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
     $length = [double]$matches[1]
     
-    if ($length -gt 1800) {
+    if ($length -gt 1550) {
       $newSetMachiningParametersLine = $setMachiningParametersLine -replace 'SetMachiningParameters\("AB"', 'SetMachiningParameters("AD"'
     }
     else {
