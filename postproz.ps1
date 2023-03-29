@@ -197,13 +197,13 @@ function Replace-CreateBladeCut([string]$Filename) {
 
   $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
   if ($KeyWord) {
-    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logFilePath
-    Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logFilePath
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
+    Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
     Add-StringBefore -insert $Array -keyword $KeyWord -textfile $Filename
   }
   else {
-    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logFilePath
-    Write-Log -Message "if (KeyWord) hat nicht angeschlagen" -LogFilePath $logFilePath
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
+    Write-Log -Message "if (KeyWord) hat nicht angeschlagen" -LogFilePath $logfile
   }
 
   # 78.1113 kann sich ändern
