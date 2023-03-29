@@ -51,12 +51,6 @@ function Write-Log {
   # Write-Log -Message "Dies ist ein Test-Log" -NewProcess $true
   # Write-Log -Message "Ein weiterer Test-Log" -LogType "Warning"
 
-  # Erstelle Log-Verzeichnis, falls es nicht existiert
-  $LogDir = Split-Path -Path $LogFilePath -Parent
-  if (-not (Test-Path -Path $LogDir)) {
-    New-Item -ItemType Directory -Path $LogDir | Out-Null
-  }
-
   # Erstelle Log-Datei, falls sie nicht existiert
   if (-not (Test-Path -Path $LogFilePath)) {
     New-Item -ItemType File -Path $LogFilePath | Out-Null
@@ -74,10 +68,6 @@ function Write-Log {
   $logEntry = "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") - $LogType - $Message"
   Add-Content -Path $LogFilePath -Value $logEntry
 }
-
-
-
-
 
 
 function convert-xcs-to-pgmx {
