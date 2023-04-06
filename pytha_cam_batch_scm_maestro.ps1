@@ -306,7 +306,7 @@ function Feldanpassung([string]$filePath) {
   # Schreibe die Datei
   Set-Content -Path $filePath -Value $content
 }
-
+<#
 function Park2([string]$filePath) {
   Write-Log -Message "Prk2 wird nun ausgeführt.."
   Write-Log -Message "Prk2 wird nun ausgeführt.."
@@ -354,6 +354,49 @@ function Park2([string]$filePath) {
   # Schreibe die Datei
   Set-Content -Path $filePath -Value $content
 }
+#>
+function Park2([string]$filePath) {
+  Write-Host "Park2 wird nun ausgeführt.."
+
+  # Lese die Datei
+  $content = Get-Content -Path $filePath
+
+  # Suche nach den Zeilen mit SetMachiningParameters und CreateFinishedWorkpieceBox
+  $setMachiningParametersLine = $content | Where-Object { $_ -match 'SetMachiningParameters\(' }
+  $createFinishedWorkpieceBoxLine = $content | Where-Object { $_ -match 'CreateFinishedWorkpieceBox\(' }
+
+  # Überprüfe, ob SetMachiningParameters-Zeile gefunden wurde
+  if ($null -eq $setMachiningParametersLine) {
+    Write-Output "Die Zeile mit SetMachiningParameters wurde nicht gefunden."
+    return
+  }
+
+  # Überprüfe die Länge, die in CreateFinishedWorkpieceBox angegeben ist, oder ob sie fehlt
+  if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
+    $length = [double]$matches[1]
+    Write-Host "LENGTH: $length"
+    if ($length -ge 2785) {
+      $oldLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK");'
+      $newLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK2");'
+
+      $escapedOldLine = [regex]::Escape($oldLine)
+      $found = [regex]::Matches($content, $escapedOldLine)
+
+      Write-Host "Das hier wurde gefunden: $found"
+
+      if ($found) {
+        Write-Host "Found $($found.Count) occurrence(s) of '$oldLine'"
+        $content = $content -replace $escapedOldLine, $newLine
+      } else {
+        Write-Host "No occurrence of '$oldLine' found"
+      }
+    }
+  }
+
+  # Schreibe die Datei
+  Set-Content -Path $filePath -Value $content
+}
+
 
 
 function Replace-CreateSlot([string]$Filename) {
