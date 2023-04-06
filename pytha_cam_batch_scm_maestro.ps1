@@ -212,6 +212,7 @@ function Replace-CreateBladeCut([string]$Filename) {
     Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
     Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
     foreach ($kw in $KeyWord) {
+      Write-Log -Message "vor $kw wird nun ergänzt." -LogFilePath $logfile
       Add-StringBefore -insert $Array -keyword $kw -textfile $Filename
     }
     
