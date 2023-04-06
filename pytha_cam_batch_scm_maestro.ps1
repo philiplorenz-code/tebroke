@@ -308,7 +308,10 @@ function Feldanpassung([string]$filePath) {
 }
 
 function Park2([string]$filePath) {
-
+  Write-Log -Message "Prk2 wird nun ausgeführt.."
+  Write-Log -Message "Prk2 wird nun ausgeführt.."
+  Write-Log -Message "Prk2 wird nun ausgeführt.."
+  Write-Log -Message "Prk2 wird nun ausgeführt.."
   # Lese die Datei
   $content = Get-Content -Path $filePath
 
