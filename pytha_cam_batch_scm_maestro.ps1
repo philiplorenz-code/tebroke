@@ -326,9 +326,8 @@ function Park2([string]$filePath) {
   # Überprüfe die Länge, die in CreateFinishedWorkpieceBox angegeben ist, oder ob sie fehlt
   if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
     $length = [double]$matches[1]
-    
+    Write-Log -Message "LENGTH: $length"
     if ($length -ge 2785) {
-      Write-Log -Message "LENGTH: $length"
       $oldLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK");'
       $newLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK2");'
 
