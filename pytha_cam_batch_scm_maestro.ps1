@@ -103,7 +103,7 @@ function Search-Array {
     }
   }
 
-  return ,$results.ToArray()
+  return , $results.ToArray()
 }
 
 
@@ -349,10 +349,11 @@ function Park2([string]$filePath) {
       Write-Log -Message "Das hier wurde gefunden: $found"
 
       if ($found) {
-          Write-Host "Found $($found.Count) occurrence(s) of '$oldLine'"
-          $content = $content -replace $escapedOldLine, $newLine
-      } else {
-          Write-Host "No occurrence of '$oldLine' found"
+        Write-Log -Message "Found $($found.Count) occurrence(s) of '$oldLine'"
+        $content = $content -replace $escapedOldLine, $newLine
+      }
+      else {
+        Write-Log -Message "No occurrence of '$oldLine' found"
       }
 
     }
@@ -389,7 +390,7 @@ function Replace-CreateContourPocket([string]$Filename) {
   $KeyWord = Search-Array -text $Content -searchkey 'CreateContourPocket("",*, "", TypeOfProcess.ConcentricalPocket,*);'
 
   If ($KeyWord) {
-    foreach($kw in $KeyWord) {
+    foreach ($kw in $KeyWord) {
       Add-StringBefore -insert $Array -keyword $kw -textfile $Filename
     }
     
@@ -419,7 +420,7 @@ function Replace-CreateRoughFinish([string]$Filename) {
 
   $KeyWord = Search-Array -text $Content -searchkey 'CreateRoughFinish("",*,"",TypeOfProcess.GeneralRouting,*, "-1", 2);'
   if ($KeyWord) {
-    foreach($kw in $KeyWord) {
+    foreach ($kw in $KeyWord) {
       Add-StringBefore -insert $Array -keyword $kw -textfile $Filename
     }
     
@@ -428,7 +429,7 @@ function Replace-CreateRoughFinish([string]$Filename) {
 
   $KeyWord = Search-Array -text $Content -searchkey 'CreateRoughFinish("",*,"",TypeOfProcess.GeneralRouting,*, "-1", 0);'
   if ($KeyWord) {
-    foreach($kw in $KeyWord) {
+    foreach ($kw in $KeyWord) {
       Add-StringBefore -insert $Array -keyword $kw -textfile $Filename
     }
     
@@ -554,8 +555,8 @@ foreach ($Prog in $input) {
   Replace-CreateContourPocket -Filename $XCS
   Replace-CreateRoughFinish -Filename $XCS
   Replace-SetMacroParam -Filename $XCS
-  Feldanpassung -filePath $XCS
   Park2 -filePath $XCS
+  Feldanpassung -filePath $XCS
   Bohrer -path $XCS
  
 
