@@ -13,7 +13,7 @@ Start-Transcript -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\tran
 
 
 
-$logfile = "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\log.log"
+$logfile = "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\newlog.log"
 $input | ConvertTo-Json | Out-File "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\dbg.txt"
 
 $input | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\input.txt"
@@ -199,6 +199,7 @@ function Initial-Replace([string]$Filename) {
 
 function Replace-CreateBladeCut([string]$Filename) {
   $Content = Get-Content $Filename
+  Write-Log -Message "Replace-CreateBladeCut" -LogFilePath $logfile
   # Prob: Die Zeilen werden nicht eingefügt 
   # Add Lines Before
   $Array = @()
@@ -309,10 +310,6 @@ function Feldanpassung([string]$filePath) {
 }
 
 function Park2([string]$filePath) {
-  Write-Log -Message "Prk2 wird nun ausgeführt.."
-  Write-Log -Message "Prk2 wird nun ausgeführt.."
-  Write-Log -Message "Prk2 wird nun ausgeführt.."
-  Write-Log -Message "Prk2 wird nun ausgeführt.."
   # Lese die Datei
   $content = Get-Content -Path $filePath
 
