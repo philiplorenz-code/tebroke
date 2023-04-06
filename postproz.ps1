@@ -21,7 +21,7 @@ $SystemPath | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData
 $SystemCommand | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemCommand.txt"
 $SystemProfile | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemProfile.txt"
 
-
+$ToolingATRX = "C:\Users\Public\Documents\SCM Group\Maestro\Atrx\teb.atrx"
 $XConverter = 'C:\Program Files (x86)\SCM Group\Maestro\XConverter.exe'
 $Tooling = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\def.tlgx"
 
