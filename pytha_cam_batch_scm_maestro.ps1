@@ -341,7 +341,7 @@ function Park2([string]$filePath) {
     Write-Log -Message "LENGTH: $length"
     if ($length -ge 2785) {
 
-      
+
       $oldLinePattern = 'CreateMacro\("PYTHA_PARK_(\d+)", "PYTHA_PARK"\);'
       $newLineTemplate = 'CreateMacro("PYTHA_PARK_$1", "PYTHA_PARK2");'
       $content = $content -replace $oldLinePattern, $newLineTemplate
@@ -349,6 +349,10 @@ function Park2([string]$filePath) {
     }
   }
   else {
+    $oldLinePattern = 'CreateMacro\("PYTHA_PARK_(\d+)", "PYTHA_PARK"\);'
+    $newLineTemplate = 'CreateMacro("PYTHA_PARK_$1", "PYTHA_PARK2");'
+    $content = $content -replace $oldLinePattern, $newLineTemplate
+
   }
 
   # Schreibe die Datei
