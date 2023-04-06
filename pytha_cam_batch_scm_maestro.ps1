@@ -69,7 +69,7 @@ function Write-Log {
   $logEntry = "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") - $LogType - $Message"
   Add-Content -Path $LogFilePath -Value $logEntry
 }
-
+Write-Log -Message "" -NewProcess $true
 
 function convert-xcs-to-pgmx {
   Write-Output "Converting" $inFiles to $outFiles
@@ -87,11 +87,16 @@ function Search-Array {
     [string]$searchkey
   )
 
+  Write-Log -Message "Es wird nun nach $searchkey gesucht." -LogType "Info"
+
   $searchkey = "*" + $searchkey + "*"
   $results = New-Object System.Collections.ArrayList
 
+  Write-Log -Message "Diese Ergebnisse wurden gefunden:" -LogType "Info"
+
   foreach ($line in $text) {
     if ($line -like $searchkey) {
+      Write-Log -Message "$line" -LogType "Info"
       $results.Add($line) | Out-Null
     }
   }
