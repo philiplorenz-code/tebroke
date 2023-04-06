@@ -328,9 +328,22 @@ function Park2([string]$filePath) {
     $length = [double]$matches[1]
     
     if ($length -ge 2785) {
+      Write-Log -Message "LENGTH: $length"
       $oldLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK");'
       $newLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK2");'
-      $content = $content -replace [regex]::Escape($oldLine), $newLine
+
+      $escapedOldLine = [regex]::Escape($oldLine)
+      $found = [regex]::Matches($content, $escapedOldLine)
+
+      Write-Log -Message "Das hier wurde gefunden: $found"
+
+      if ($found) {
+          Write-Host "Found $($found.Count) occurrence(s) of '$oldLine'"
+          $content = $content -replace $escapedOldLine, $newLine
+      } else {
+          Write-Host "No occurrence of '$oldLine' found"
+      }
+
     }
   }
   else {
