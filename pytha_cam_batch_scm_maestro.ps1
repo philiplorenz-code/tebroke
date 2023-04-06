@@ -97,7 +97,7 @@ function Search-Array {
   Write-Log -Message "Diese Ergebnisse wurden gefunden:" -LogType "Info"
 
   foreach ($line in $text) {
-    if ($line -like $searchkey) {
+    if ($line -match $searchkey) {
       Write-Log -Message "$line" -LogType "Info"
       $results.Add($line) | Out-Null
     }
