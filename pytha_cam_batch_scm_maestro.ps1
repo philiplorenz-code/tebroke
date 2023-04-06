@@ -207,7 +207,7 @@ function Replace-CreateBladeCut([string]$Filename) {
   $Array += 'SetRetractStrategy(true, true, 0.8, 0);'
   $Array += 'CreateSectioningMillingStrategy(3, 150, 0);'
 
-  $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
+  $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut*", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
   Write-Log -Message "KeyWord: $KeyWord" -LogFilePath $logfile
   if ($KeyWord) {
     Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
