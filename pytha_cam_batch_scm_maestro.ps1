@@ -69,7 +69,7 @@ function Write-Log {
   $logEntry = "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") - $LogType - $Message"
   Add-Content -Path $LogFilePath -Value $logEntry
 }
-Write-Log -Message "" -NewProcess $true
+Write-Log -Message " " -NewProcess $true
 
 function convert-xcs-to-pgmx {
   Write-Output "Converting" $inFiles to $outFiles
