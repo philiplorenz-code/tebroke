@@ -305,6 +305,39 @@ function Feldanpassung([string]$filePath) {
   Set-Content -Path $filePath -Value $content
 }
 
+function Park2([string]$filePath) {
+
+  # Lese die Datei
+  $content = Get-Content -Path $filePath
+
+  # Variablen für die gefundenen Zeilen
+  $setMachiningParametersLine = $null
+  $createFinishedWorkpieceBoxLine = $null
+
+
+  # Überprüfe, ob SetMachiningParameters-Zeile gefunden wurde
+  if ($null -eq $setMachiningParametersLine) {
+    Write-Output "Die Zeile mit SetMachiningParameters wurde nicht gefunden."
+    return
+  }
+
+  # Überprüfe die Länge, die in CreateFinishedWorkpieceBox angegeben ist, oder ob sie fehlt
+  if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
+    $length = [double]$matches[1]
+    
+    if ($length -ge 2785) {
+      $oldLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK");'
+      $newLine = 'CreateMacro("PYTHA_PARK_3", "PYTHA_PARK2");'
+      $content = $content -replace [regex]::Escape($oldLine), $newLine
+    }
+  }
+  else {
+  }
+
+  # Schreibe die Datei
+  Set-Content -Path $filePath -Value $content
+}
+
 
 function Replace-CreateSlot([string]$Filename) {
   $Content = Get-Content -Path $Filename
@@ -496,6 +529,7 @@ foreach ($Prog in $input) {
   Replace-CreateRoughFinish -Filename $XCS
   Replace-SetMacroParam -Filename $XCS
   Feldanpassung -filePath $XCS
+  Park2 -filePath $XCS
   Bohrer -path $XCS
  
 
