@@ -97,7 +97,7 @@ function Search-Array {
   Write-Log -Message "Diese Ergebnisse wurden gefunden:" -LogType "Info"
 
   foreach ($line in $text) {
-    if ($line -like $searchkey) {
+    if ($line -match $searchkey) {
       Write-Log -Message "$line" -LogType "Info"
       $results.Add($line) | Out-Null
     }
@@ -207,11 +207,10 @@ function Replace-CreateBladeCut([string]$Filename) {
   $Array += 'SetRetractStrategy(true, true, 0.8, 0);'
   $Array += 'CreateSectioningMillingStrategy(3, 150, 0);'
 
-  $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
+  $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut\("SlantedBladeCut\d+", "", TypeOfProcess\.GeneralRouting, "[^"]*", "-1", [^,]*, \d+\);'
+
   Write-Log -Message "KeyWord: $KeyWord" -LogFilePath $logfile
   if ($KeyWord) {
-    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
-    Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
     foreach ($kw in $KeyWord) {
       Write-Log -Message "vor $kw wird nun ergänzt." -LogFilePath $logfile
       Add-StringBefore -insert $Array -keyword $kw -textfile $Filename
