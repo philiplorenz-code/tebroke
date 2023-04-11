@@ -24,7 +24,7 @@ $SystemProfile | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppD
 
 $XConverter = "C:\Program Files (x86)\SCM Group\Maestro\XConverter.exe"
 $Tooling = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\def.tlgx"
-$ToolingATRX = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\teb.atrx"
+
 
 $count = 0
 $inFiles = @()
@@ -38,7 +38,7 @@ function Write-Log {
     [string]$Message,
       
     [Parameter(Mandatory = $false, Position = 1)]
-    [string]$LogFilePath = "$env:USERPROFILE\Desktop\debug_fraestiefe.txt",
+    [string]$LogFilePath = "C:\Logs\debug_log.txt",
       
     [Parameter(Mandatory = $false, Position = 2)]
     [string]$LogType = "Info",
@@ -68,14 +68,14 @@ function Write-Log {
   $logEntry = "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") - $LogType - $Message"
   Add-Content -Path $LogFilePath -Value $logEntry
 }
-Write-Log -Message "Postprozessor gestartet" -NewProcess $true
+Write-Log -Message " " -NewProcess $true
 
 function convert-xcs-to-pgmx {
   Write-Output "Converting" $inFiles to $outFiles
   # Konvertieren in tmp pgmx; sollte die ATRX vom Standardnamen .def abweichen, muss -q $ToolingATRX aktiv sein; ansonsten diesen Teil löschen
-  & $XConverter -ow -s -report -m 0  -i $inFiles -t $Tooling -q $ToolingATRX -o $tmpFiles | Out-Default
+  & $XConverter -ow -s -report -m 0  -i $inFiles -t $Tooling -o $tmpFiles | Out-Default
   # Sauger positionieren
-  & $XConverter -ow -s -m 13  -i $tmpFiles -t $Tooling -q $ToolingATRX -o $outFiles | Out-Default
+  & $XConverter -ow -s -m 13  -i $tmpFiles -t $Tooling -o $outFiles | Out-Default
 
   # Loesche die temporaeren Dateien; sollte die ATRX vom Standardnamen .def abweichen, muss -q $ToolingATRX aktiv sein; ansonsten diesen Teil löschen
   Remove-Item $tmpFiles  
@@ -86,16 +86,16 @@ function Search-Array {
     [string]$searchkey
   )
 
-  #Write-Log -Message "Es wird nun nach $searchkey gesucht." -LogType "Info"
+  Write-Log -Message "Es wird nun nach $searchkey gesucht." -LogType "Info"
 
   $searchkey = "*" + $searchkey + "*"
   $results = New-Object System.Collections.ArrayList
 
-  #Write-Log -Message "Diese Ergebnisse wurden gefunden:" -LogType "Info"
+  Write-Log -Message "Diese Ergebnisse wurden gefunden:" -LogType "Info"
 
   foreach ($line in $text) {
     if ($line -like $searchkey) {
-      #Write-Log -Message "$line" -LogType "Info"
+      Write-Log -Message "$line" -LogType "Info"
       $results.Add($line) | Out-Null
     }
   }
@@ -196,7 +196,7 @@ function Initial-Replace([string]$Filename) {
 
 function Replace-CreateBladeCut([string]$Filename) {
   $Content = Get-Content $Filename
-  #Write-Log -Message "Replace-CreateBladeCut" -LogFilePath $logfile
+  Write-Log -Message "Replace-CreateBladeCut" -LogFilePath $logfile
   # Prob: Die Zeilen werden nicht eingefügt 
   # Add Lines Before
   #SetApproachStrategy aktiviert das Anfahren gerade bohrend mit dem Faktor Radius von 0,8
@@ -208,19 +208,19 @@ function Replace-CreateBladeCut([string]$Filename) {
   $Array += 'CreateSectioningMillingStrategy(3, 150, 0);'
 
   $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut*", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
-  #Write-Log -Message "KeyWord: $KeyWord" -LogFilePath $logfile
+  Write-Log -Message "KeyWord: $KeyWord" -LogFilePath $logfile
   if ($KeyWord) {
-    #Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
-    #Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
+    Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
     foreach ($kw in $KeyWord) {
-      #Write-Log -Message "vor $kw wird nun ergänzt." -LogFilePath $logfile
+      Write-Log -Message "vor $kw wird nun ergänzt." -LogFilePath $logfile
       Add-StringBefore -insert $Array -keyword $kw -textfile $Filename
     }
     
   }
   else {
-    #Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
-    #Write-Log -Message "if (KeyWord) hat nicht angeschlagen" -LogFilePath $logfile
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
+    Write-Log -Message "if (KeyWord) hat nicht angeschlagen" -LogFilePath $logfile
   }
 
   # 78.1113 kann sich ändern
@@ -340,7 +340,7 @@ function Park2([string]$filePath) {
   # Hier kann der Wert verändert werden, ab wann der Wegfahrschritt nicht mehr aktiv werden soll und anstatt dessen dann das Makro PYTHA_PARK2 angesprochen wird, welches ein Parken der Maschine erzeugt
   if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
     $length = [double]$matches[1]
-    #Write-Log -Message "LENGTH: $length"
+    Write-Log -Message "LENGTH: $length"
     if ($length -ge 2785) {
 
 
@@ -453,25 +453,19 @@ function Replace-CreateRoughFinish([string]$Filename) {
 
 function Replace-SetMacroParam([string]$Filename) {
   # Prob: Technologie nicht angesprochen
-  $filenamesplitted = Split-Path $Filename -leaf
-  $split = $filenamesplitted.split("_")
+  $filename = Split-Path $Filename -leaf
+  $split = $filename.split("_")
   $PosNr = $split[0]
   $Bauteilname = $split[1]
   $Material = $split[2]
   $Fraestiefe = $split[3]
   $Technologie = $split[4]
   $ProgrammNr = $split[5]
-  
-  Write-Log -Message "Filename: $Filename"
-  Write-Log -Message "PosNr: $PosNr, Bauteilname: $Bauteilname, Material: $Material, Fraestiefe: $Fraestiefe, Technologie: $Technologie, ProgrammNr: $ProgrammNr" 
-
-
+    
   if ([string]::IsNullOrEmpty($Fraestiefe)) {
-    Write-Log -Message "Fraestiefe ist leer!"
     $MM = 0
   }
   else {
-    Write-Log -Message "Fraestiefe ist $Fraestiefe !"
     $MM = $Fraestiefe
   }
     
@@ -482,7 +476,6 @@ function Replace-SetMacroParam([string]$Filename) {
   foreach ($string in $content) {
     $output += $string
     if ($string -like "*SetMacroParam*Angle*") {
-      Write-Log -Message "SetMacroParam Angle gefunden!: $string"
       $output += 'SetMacroParam("Depth", ' + $MM + ');'
     }
     
@@ -536,7 +529,7 @@ function Replace-SetMacroParam([string]$Filename) {
 }
 
 
-#Write-Log -Message "Dies ist ein Test-Log" -NewProcess $true -LogFilePath $logfile
+Write-Log -Message "Dies ist ein Test-Log" -NewProcess $true -LogFilePath $logfile
 $i = 0
 foreach ($Prog in $input) {
   if ($count -ge 200) { 

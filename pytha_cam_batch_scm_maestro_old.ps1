@@ -22,9 +22,12 @@ $SystemCommand | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppD
 $SystemProfile | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppData\Local\PYTHA25.0\temp\SystemProfile.txt"
 
 
-$XConverter = "C:\Program Files (x86)\SCM Group\Maestro\XConverter.exe"
-$Tooling = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\def.tlgx"
-$ToolingATRX = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\teb.atrx"
+# $XConverter = "C:\Program Files (x86)\SCM Group\Maestro\XConverter.exe"
+# $Tooling = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\def.tlgx"
+# $ToolingATRX = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\teb.atrx"
+$XConverter = "C:\Program Files\SCM Group\Maestro\XConverter.exe"
+$Tooling = "C:\Users\Public\Documents\SCM Group\Maestro\Tlgx\def.tlgx"
+$ToolingATRX = "C:\Users\Public\Documents\SCM Group\Maestro\Atrx\teb.atrx"
 
 $count = 0
 $inFiles = @()
@@ -38,7 +41,7 @@ function Write-Log {
     [string]$Message,
       
     [Parameter(Mandatory = $false, Position = 1)]
-    [string]$LogFilePath = "$env:USERPROFILE\Desktop\debug_fraestiefe.txt",
+    [string]$LogFilePath = "C:\Logs\debug_log.txt",
       
     [Parameter(Mandatory = $false, Position = 2)]
     [string]$LogType = "Info",
@@ -68,16 +71,16 @@ function Write-Log {
   $logEntry = "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") - $LogType - $Message"
   Add-Content -Path $LogFilePath -Value $logEntry
 }
-Write-Log -Message "Postprozessor gestartet" -NewProcess $true
+Write-Log -Message " " -NewProcess $true
 
 function convert-xcs-to-pgmx {
   Write-Output "Converting" $inFiles to $outFiles
-  # Konvertieren in tmp pgmx; sollte die ATRX vom Standardnamen .def abweichen, muss -q $ToolingATRX aktiv sein; ansonsten diesen Teil löschen
+  # Konvertieren in tmp pgmx
   & $XConverter -ow -s -report -m 0  -i $inFiles -t $Tooling -q $ToolingATRX -o $tmpFiles | Out-Default
   # Sauger positionieren
   & $XConverter -ow -s -m 13  -i $tmpFiles -t $Tooling -q $ToolingATRX -o $outFiles | Out-Default
 
-  # Loesche die temporaeren Dateien; sollte die ATRX vom Standardnamen .def abweichen, muss -q $ToolingATRX aktiv sein; ansonsten diesen Teil löschen
+  # Loesche die temporaeren Dateien
   Remove-Item $tmpFiles  
 }
 function Search-Array {
@@ -86,16 +89,16 @@ function Search-Array {
     [string]$searchkey
   )
 
-  #Write-Log -Message "Es wird nun nach $searchkey gesucht." -LogType "Info"
+  Write-Log -Message "Es wird nun nach $searchkey gesucht." -LogType "Info"
 
   $searchkey = "*" + $searchkey + "*"
   $results = New-Object System.Collections.ArrayList
 
-  #Write-Log -Message "Diese Ergebnisse wurden gefunden:" -LogType "Info"
+  Write-Log -Message "Diese Ergebnisse wurden gefunden:" -LogType "Info"
 
   foreach ($line in $text) {
     if ($line -like $searchkey) {
-      #Write-Log -Message "$line" -LogType "Info"
+      Write-Log -Message "$line" -LogType "Info"
       $results.Add($line) | Out-Null
     }
   }
@@ -196,37 +199,33 @@ function Initial-Replace([string]$Filename) {
 
 function Replace-CreateBladeCut([string]$Filename) {
   $Content = Get-Content $Filename
-  #Write-Log -Message "Replace-CreateBladeCut" -LogFilePath $logfile
+  Write-Log -Message "Replace-CreateBladeCut" -LogFilePath $logfile
   # Prob: Die Zeilen werden nicht eingefügt 
   # Add Lines Before
-  #SetApproachStrategy aktiviert das Anfahren gerade bohrend mit dem Faktor Radius von 0,8
-  #SetRetractStrategy aktiviert das Verlassen gerade bohrend mit dem Faktor Radius von 0,8. Der hintere Wert der mit 0 angegeben ist, kann verändert werden und verändert die Überlappung
-  #CreateSectioningMillingStrategy aktiviert die Stategie "Vorritzen" mit einer Tiefe von 3 mm, einer Ausgangsdistanz von 150 mm. Der letze Wert, der aktuell bei 0 ist, würde einen seitlichen Versatz aktivieren
   $Array = @()
   $Array += 'SetApproachStrategy(true, true, 0.8);'
   $Array += 'SetRetractStrategy(true, true, 0.8, 0);'
   $Array += 'CreateSectioningMillingStrategy(3, 150, 0);'
 
   $KeyWord = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut*", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
-  #Write-Log -Message "KeyWord: $KeyWord" -LogFilePath $logfile
+  Write-Log -Message "KeyWord: $KeyWord" -LogFilePath $logfile
   if ($KeyWord) {
-    #Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
-    #Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
+    Write-Log -Message "if (KeyWord) hat angeschlagen" -LogFilePath $logfile
     foreach ($kw in $KeyWord) {
-      #Write-Log -Message "vor $kw wird nun ergänzt." -LogFilePath $logfile
+      Write-Log -Message "vor $kw wird nun ergänzt." -LogFilePath $logfile
       Add-StringBefore -insert $Array -keyword $kw -textfile $Filename
     }
     
   }
   else {
-    #Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
-    #Write-Log -Message "if (KeyWord) hat nicht angeschlagen" -LogFilePath $logfile
+    Write-Log -Message "Funktion: Replace-CreateBladeCut" -LogFilePath $logfile
+    Write-Log -Message "if (KeyWord) hat nicht angeschlagen" -LogFilePath $logfile
   }
 
   # 78.1113 kann sich ändern
 
   # Replace Line
-  # Hier kann die Übertiefe beim Sägeschnitt verändert werden. Es ist der letzte Wert, der aktuell bei 10 mm eingestellt ist. 
   $Content = Get-Content $Filename
   $2replace = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
   if ($2replace) {
@@ -248,7 +247,6 @@ function Bohrer([string]$path) {
       $string -match 'CreateDrill\("(.+?)", (.+?), (.+?), (.+?), (.+?), "", TypeOfProcess\.Drilling, "-1", "-1", 0, -1, -1, "L"\);'
       $name, $val1, $val2, $val3, $val4 = $matches[1], $matches[2], $matches[3], $matches[4], $matches[5]
       # Erhöhe die Zahl (19.0000 im Beispiel) um 3
-      # Hier kann die Übertiefe für das Durchbohren verändert werden
       $newVal3 = [double]$val3 + 3
       # Erstelle den neuen String
 
@@ -290,7 +288,6 @@ function Feldanpassung([string]$filePath) {
   }
 
   # Überprüfe die Länge, die in CreateFinishedWorkpieceBox angegeben ist, oder ob sie fehlt
-  # Hier kann der Wert verändert werden, ab dem das Feld AD angesteuert wird. Aktuell 1800
   if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
     $length = [double]$matches[1]
     
@@ -337,10 +334,9 @@ function Park2([string]$filePath) {
   }
 
   # Überprüfe die Länge, die in CreateFinishedWorkpieceBox angegeben ist, oder ob sie fehlt
-  # Hier kann der Wert verändert werden, ab wann der Wegfahrschritt nicht mehr aktiv werden soll und anstatt dessen dann das Makro PYTHA_PARK2 angesprochen wird, welches ein Parken der Maschine erzeugt
   if ($null -ne $createFinishedWorkpieceBoxLine -and $createFinishedWorkpieceBoxLine -match '^CreateFinishedWorkpieceBox\(".+?", (.+?), .+?, .+?\);') {
     $length = [double]$matches[1]
-    #Write-Log -Message "LENGTH: $length"
+    Write-Log -Message "LENGTH: $length"
     if ($length -ge 2785) {
 
 
@@ -379,7 +375,6 @@ function Replace-CreateContourPocket([string]$Filename) {
   $Content = Get-Content $Filename
   
   # Add Lines Before
-  # Hier kann das Anfahren und Verlassen bei einer Taschenfrösung geändert werden. Die aktuelle Tiefe je Arbeitsgang ist bei 7 mm eingestellt.
   $Array = @()
   $Array += 'SetApproachStrategy(true, false, 2);'
   $Array += 'CreateContourParallelStrategy(true, 0, true, 7, 0, 0);'
@@ -398,7 +393,7 @@ function Replace-CreateContourPocket([string]$Filename) {
 }
 
 function Uebersetzung([string]$Filename) {
-  # Hier können Textersetzungen angegeben werden, welche dann in der xcs- bzw. pgmx-Datei wirksam werden; aktuell inaktiv
+  # Hier können Textersetzungen angegeben werden, welche dann in der xcs- bzw. pgmx-Datei wirksam werden
   $Content = Get-Content $Filename
   $Content.Replace("SlantedBladeCut", "Saegeschnitt_").
   Replace("Routing_", "Fraesen_").
@@ -434,7 +429,6 @@ function Replace-CreateRoughFinish([string]$Filename) {
 
 
   # Approach- und RetractStrategie ersetzen
-  
   $Content | ForEach-Object {
 
     # Im Bogen an- und abfahren mit 5 mm Überlappung für Bauteilumfräsung
@@ -453,25 +447,19 @@ function Replace-CreateRoughFinish([string]$Filename) {
 
 function Replace-SetMacroParam([string]$Filename) {
   # Prob: Technologie nicht angesprochen
-  $filenamesplitted = Split-Path $Filename -leaf
-  $split = $filenamesplitted.split("_")
+  $filename = Split-Path $Filename -leaf
+  $split = $filename.split("_")
   $PosNr = $split[0]
   $Bauteilname = $split[1]
   $Material = $split[2]
   $Fraestiefe = $split[3]
   $Technologie = $split[4]
   $ProgrammNr = $split[5]
-  
-  Write-Log -Message "Filename: $Filename"
-  Write-Log -Message "PosNr: $PosNr, Bauteilname: $Bauteilname, Material: $Material, Fraestiefe: $Fraestiefe, Technologie: $Technologie, ProgrammNr: $ProgrammNr" 
-
-
+    
   if ([string]::IsNullOrEmpty($Fraestiefe)) {
-    Write-Log -Message "Fraestiefe ist leer!"
     $MM = 0
   }
   else {
-    Write-Log -Message "Fraestiefe ist $Fraestiefe !"
     $MM = $Fraestiefe
   }
     
@@ -482,7 +470,6 @@ function Replace-SetMacroParam([string]$Filename) {
   foreach ($string in $content) {
     $output += $string
     if ($string -like "*SetMacroParam*Angle*") {
-      Write-Log -Message "SetMacroParam Angle gefunden!: $string"
       $output += 'SetMacroParam("Depth", ' + $MM + ');'
     }
     
@@ -536,7 +523,7 @@ function Replace-SetMacroParam([string]$Filename) {
 }
 
 
-#Write-Log -Message "Dies ist ein Test-Log" -NewProcess $true -LogFilePath $logfile
+Write-Log -Message "Dies ist ein Test-Log" -NewProcess $true -LogFilePath $logfile
 $i = 0
 foreach ($Prog in $input) {
   if ($count -ge 200) { 
