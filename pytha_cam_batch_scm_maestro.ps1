@@ -24,7 +24,7 @@ $SystemProfile | ConvertTo-Json | Set-Content -Path "C:\Users\$env:USERNAME\AppD
 
 $XConverter = "C:\Program Files (x86)\SCM Group\Maestro\XConverter.exe"
 $Tooling = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\def.tlgx"
-$ToolingATRX = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\teb.atrx"
+#$ToolingATRX = "S:\AAwerkstatt\SCM\Werkzeugdatei M200\teb.atrx"
 
 $count = 0
 $inFiles = @()
@@ -73,9 +73,9 @@ Write-Log -Message "Postprozessor gestartet" -NewProcess $true
 function convert-xcs-to-pgmx {
   Write-Output "Converting" $inFiles to $outFiles
   # Konvertieren in tmp pgmx; sollte die ATRX vom Standardnamen .def abweichen, muss -q $ToolingATRX aktiv sein; ansonsten diesen Teil löschen
-  & $XConverter -ow -s -report -m 0  -i $inFiles -t $Tooling -q $ToolingATRX -o $tmpFiles | Out-Default
+  & $XConverter -ow -s -report -m 0  -i $inFiles -t $Tooling -o $tmpFiles | Out-Default
   # Sauger positionieren
-  & $XConverter -ow -s -m 13  -i $tmpFiles -t $Tooling -q $ToolingATRX -o $outFiles | Out-Default
+  & $XConverter -ow -s -m 13  -i $tmpFiles -t $Tooling -o $outFiles | Out-Default
 
   # Loesche die temporaeren Dateien; sollte die ATRX vom Standardnamen .def abweichen, muss -q $ToolingATRX aktiv sein; ansonsten diesen Teil löschen
   Remove-Item $tmpFiles  
@@ -498,9 +498,6 @@ function Replace-SetMacroParam([string]$Filename) {
     $configpath = Join-path $PSScriptRoot "configtech.txt"
     $content = Get-Content $configpath
 
-    "Content:" | Out-File -Append -FilePath ([IO.Path]::Combine($PSScriptRoot, "logs", "log.log"))
-
-    $content | Out-File -Append -FilePath ([IO.Path]::Combine($PSScriptRoot, "logs", "log.log"))
 
     $hashtable = @{}
     foreach ($line in $content) {
