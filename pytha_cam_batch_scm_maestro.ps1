@@ -235,6 +235,16 @@ function Replace-CreateBladeCut([string]$Filename) {
       $Content = $Content.Replace($2rep, $replacant)
     }
   }
+  if ($2replace) {
+    foreach ($2rep in $2replace) {
+      $replacant = ($2rep.Replace(");", "")) + ", -1, -1, -1, 0, true, true, 0, 10);"
+      $Content = $Content -replace [regex]::Escape($2rep), $replacant
+      $currentDate = Get-Date -Format "ddMMyyyy"
+      $desktopPath = [Environment]::GetFolderPath("Desktop")
+      $LogFile = Join-Path -Path $desktopPath -ChildPath "$currentDate.txt"
+      Add-Content -Path $LogFile -Value "Ersetze: $2rep`r`nMit: $replacant"
+    }
+  }
   #$replacant = 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting, "E041", "-1", 78.1113, 2, -1, -1, -1, 0, true, true, 0, 10);'
   # 78.1113 kann sich ändern
   
