@@ -228,13 +228,8 @@ function Replace-CreateBladeCut([string]$Filename) {
   # Replace Line
   # Hier kann die Übertiefe beim Sägeschnitt verändert werden. Es ist der letzte Wert, der aktuell bei 10 mm eingestellt ist. 
   $Content = Get-Content $Filename
-  $2replace = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut1", "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
-  if ($2replace) {
-    foreach ($2rep in $2replace) {
-      $replacant = ($2rep.Replace(");", "")) + ", -1, -1, -1, 0, true, true, 0, 10);"
-      $Content = $Content.Replace($2rep, $replacant)
-    }
-  }
+  $2replace = Search-Array -text $Content -searchkey 'CreateBladeCut("SlantedBladeCut*, "", TypeOfProcess.GeneralRouting,*, "-1",*, 2);'
+
   if ($2replace) {
     foreach ($2rep in $2replace) {
       $replacant = ($2rep.Replace(");", "")) + ", -1, -1, -1, 0, true, true, 0, 10);"
