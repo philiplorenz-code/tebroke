@@ -549,7 +549,7 @@ foreach ($Prog in $input) {
   Initial-Replace -Filename $XCS
   #Uebersetzung -Filename $XCS
   Replace-CreateBladeCut -Filename $XCS
-  Replace-CreateSlot -Filename $XCS
+  #Replace-CreateSlot -Filename $XCS
   Replace-CreateContourPocket -Filename $XCS
   Replace-CreateRoughFinish -Filename $XCS
   Replace-SetMacroParam -Filename $XCS
